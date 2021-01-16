@@ -1,9 +1,11 @@
 windows和linux都差不多，只要环境搭建好，然后再执行程序就能实现快速登录
 
+
+
 ### 想要见效果的看这篇博客有gif演示效果：
 [java+selenium-java 实现qq自动登录并获取cookie](https://blog.csdn.net/qq_41813208/article/details/112646537)
 ### 完整的环境搭建过程
-
+github显示不了图片的到csdn看我博客：[实现所有网站的qq登录返回登录后的cookie信息](https://blog.csdn.net/qq_41813208/article/details/112727425)
 ### 第一步给Linux服务器安装google-chrome（谷歌浏览器）
 Centos操作系统的使用下面这个
 
