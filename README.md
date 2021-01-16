@@ -1,11 +1,13 @@
 windows和linux都差不多，只要环境搭建好，然后再执行程序就能实现快速登录
 
 
-
 ### 想要见效果的看这篇博客有gif演示效果：
 [java+selenium-java 实现qq自动登录并获取cookie](https://blog.csdn.net/qq_41813208/article/details/112646537)
+
 ### 完整的环境搭建过程
 github显示不了图片的到csdn看我博客：[实现所有网站的qq登录返回登录后的cookie信息](https://blog.csdn.net/qq_41813208/article/details/112727425)
+
+
 ### 第一步给Linux服务器安装google-chrome（谷歌浏览器）
 Centos操作系统的使用下面这个
 
@@ -57,7 +59,7 @@ ftp工具 例如：[FileZila下载页面](https://www.filezilla.cn/download/clie
 ftp 工具 和 chromedriver也可以通过下面的csdn进行下载，我将它打包成了一个zip包。也可以选择前面发的链接自行下载接口
 [https://download.csdn.net/download/qq_41813208/14503894](https://download.csdn.net/download/qq_41813208/14503894)
 
-将他上传到一个目录下，例如`/home/angel`
+将他上传到一个目录下，例如`/root`
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210117010516450.png)
 #### 授予执行权限
 执行完后就会是绿色的提示。
@@ -65,15 +67,25 @@ ftp 工具 和 chromedriver也可以通过下面的csdn进行下载，我将它�
 chmod 777 chromedriver
 ```
 
-### 第三步、下载jar包，或者去github自行打成jar包（不放心的可以看下源码，很简单的代码）
+### 第三步、下载jar包，或者去github自行打成jar包
+jar包下载地址：[https://github.com/1015770492/autoLoginQQWithAnyWeb/releases/tag/1.0](https://github.com/1015770492/autoLoginQQWithAnyWeb/releases/tag/1.0)
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210117023638510.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQxODEzMjA4,size_16,color_FFFFFF,t_70)
+
+
 java环境需要先弄好
 Ubuntu用：`apt install -y openjdk-14-jre-headless`进行安装即可
 Centos用：`yum install -y java-11-openjdk-devel.x86_64`安装即可（如果需要配置环境变量自行配置即可）
 
-是一个springboot项目，端口是：7000，可以通过运行参数修改
+是一个springboot项目，端口是：7000，可以通过运行参数`-Dserver.port`修改启动端口
+### 提醒
+`-Dwebdriver.chrome.driver`是指定驱动的位置，请更改为正确的位置
 
-```bash
-java -jar -Dwebdriver.chrome.driver=/home/angel/chromedriver -Dserver.port=7000 autoLoginQQWithAnyWeb-1.0.jar
+
+![在这里插入图片描述](https://img-blog.csdnimg.cn/20210117023210312.png)
+如果是默认的root目录下操作更改对应得路径即可
+```
+java -jar -Dwebdriver.chrome.driver=/root/chromedriver \
+-Dserver.port=7000 autoLoginQQWithAnyWeb-1.0.jar
 ```
 
 ### 第四步发送请求得到cookie信息
@@ -149,6 +161,12 @@ public class LoginController {
         try {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless"); //无浏览器模式
+            options.addArguments("--no-sandbox");// 为了让root用户也能执行
+
+            // 优化参数
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("blink-settings=imagesEnabled=false");
+            options.addArguments("--disable-gpu");
             driver = new ChromeDriver(options);//实例化
             driver.get(url);
 
