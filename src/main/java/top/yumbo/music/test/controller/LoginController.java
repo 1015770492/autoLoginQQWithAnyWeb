@@ -49,6 +49,12 @@ public class LoginController {
         try {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless"); //无浏览器模式
+            options.addArguments("--no-sandbox");// 为了让root用户也能执行
+
+            // 优化参数
+            options.addArguments("--disable-dev-shm-usage");
+            options.addArguments("blink-settings=imagesEnabled=false");
+            options.addArguments("--disable-gpu");
             driver = new ChromeDriver(options);//实例化
             driver.get(url);
 
