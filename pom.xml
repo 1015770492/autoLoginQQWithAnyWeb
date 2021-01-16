@@ -3,47 +3,83 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.4.1</version>
+        <relativePath/>
+    </parent>
     <groupId>top.yumbo</groupId>
-    <artifactId>autoLonginQQMuisc</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
+    <artifactId>autoLoginQQWithAnyWeb</artifactId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+    <repositories>
+        <repository>
+            <id>alimaven</id>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
+        <!-- fastjson 工具类 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.75</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.0.0-alpha-7</version>
+<!--            <version>4.0.0-alpha-7</version>-->
         </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                    <mainClass>top.yumbo.music.test.QQMusicDemo</mainClass>
+                </configuration>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>repackage</goal>
                         </goals>
-                        <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>
-                                        <!--主类的位置-->
-                                        top.yumbo.music.test.NeteaseCloudMusicDemo
-                                    </mainClass>
-                                </manifest>
-                            </archive>
-                            <descriptorRefs>
-                                <descriptorRef>jar-with-dependencies</descriptorRef>
-                            </descriptorRefs>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-assembly-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>single</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <archive>-->
+<!--                                <manifest>-->
+<!--                                    <mainClass>-->
+<!--                                        &lt;!&ndash;主类的位置&ndash;&gt;-->
+<!--                                        top.yumbo.music.test.QQMusicDemo-->
+<!--                                    </mainClass>-->
+<!--                                </manifest>-->
+<!--                            </archive>-->
+<!--                            <descriptorRefs>-->
+<!--                                <descriptorRef>jar-with-dependencies</descriptorRef>-->
+<!--                            </descriptorRefs>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
             <!-- 编译插件，设置源码以及编译的jdk版本 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
