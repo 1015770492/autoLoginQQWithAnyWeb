@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ChromeAutoConfigration {
 
-    @Bean
-    public ChromeDriver chromeDriver(){
+
+    // 销毁时关闭谷歌浏览器
+    @Bean(destroyMethod = "quit")
+    public ChromeDriver chromeDriver() {
         // idea中为了方便则开启这条注释，指定正确的chrome驱动位置
 //        System.setProperty("webdriver.chrome.driver", "D:/Program Files (x86)/chromedriver/chromedriver.exe");
         ChromeOptions options = new ChromeOptions();
@@ -20,8 +22,7 @@ public class ChromeAutoConfigration {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("blink-settings=imagesEnabled=false");
         options.addArguments("--disable-gpu");
-        final ChromeDriver chromeDriver = new ChromeDriver(options);//实例化
 
-        return chromeDriver;
+        return new ChromeDriver(options);//实例化
     }
 }
