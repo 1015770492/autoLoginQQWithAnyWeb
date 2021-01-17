@@ -7,13 +7,21 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.Set;
 
 @RestController
 public class LoginController {
+
+    @Resource
+    ChromeDriver chromeDriver;
+
+
+
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject loginQQBackCookie(@RequestBody(required = false) JSONObject jsonObject,
                                         @RequestParam(value = "url", required = false) String url,
@@ -40,36 +48,26 @@ public class LoginController {
             }
             return error;
         }
-        // idea中为了方便则开启这条注释，指定正确的chrome驱动位置
-//        System.setProperty("webdriver.chrome.driver", "D:/Program Files (x86)/chromedriver/chromedriver.exe");
+
         final JSONObject cookieJson = new JSONObject();
         String cookie = null;
-        //设置系统环境变量
-        WebDriver driver = null;
         try {
-            ChromeOptions options = new ChromeOptions();
-            options.addArguments("--headless"); //无浏览器模式
-            options.addArguments("--no-sandbox");// 为了让root用户也能执行
 
-            // 优化参数
-            options.addArguments("--disable-dev-shm-usage");
-            options.addArguments("blink-settings=imagesEnabled=false");
-            options.addArguments("--disable-gpu");
-            driver = new ChromeDriver(options);//实例化
-            driver.get(url);
+            chromeDriver.get(url);
 
-            final WebDriver ptlogin_iframe = driver.switchTo().frame("ptlogin_iframe");
+            final WebDriver ptlogin_iframe = chromeDriver.switchTo().frame("ptlogin_iframe");
             ptlogin_iframe.findElement(By.id("switcher_plogin")).click();
             final WebElement u = ptlogin_iframe.findElement(By.className("inputstyle"));
-            u.click();// 点击输入框
+            u.clear();// 清空输入的用户名
             u.sendKeys(username + "\n");// 输入账号
             final WebElement login_button = ptlogin_iframe.findElement(By.id("login_button"));
             final WebElement p = ptlogin_iframe.findElement(By.id("p"));
+            p.clear();// 清空输入的密码数据
             p.sendKeys(password + "\n");// 输入密码，回车就提交了下面的这个点击登录不需要
 //                    login_button.click();// 点击登录按钮
-            System.out.println(driver.getCurrentUrl());
+            System.out.println(chromeDriver.getCurrentUrl());
             //获得cookie
-            Set<Cookie> coo = driver.manage().getCookies();
+            Set<Cookie> coo = chromeDriver.manage().getCookies();
             //打印cookie
             System.out.println(coo);
 
@@ -78,14 +76,11 @@ public class LoginController {
             } else {
                 cookieJson.put("cookie", coo);
             }
+            chromeDriver.manage().deleteAllCookies();// 使用完清除cookie
+
         } catch (Exception e) {
             System.out.println("抛异常了");
             e.printStackTrace();
-        } finally {
-            //使用完毕，关闭webDriver
-            if (driver != null) {
-                driver.quit();
-            }
         }
         return cookieJson;
     }
@@ -100,7 +95,7 @@ public class LoginController {
         if (cookies == null) {
             return "";
         }
-        System.out.println("解析前cookie是" + cookies.toString());
+        System.out.println("\n解析前cookie是" + cookies.toString());
         String cookieString = "";
         for (Cookie cookie : cookies) {
             cookieString += (cookie.getName() + "=" + cookie.getValue() + ";");
