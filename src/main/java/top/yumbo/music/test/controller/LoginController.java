@@ -6,20 +6,20 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import top.yumbo.music.test.web.WebLoginEnum;
 
-import javax.annotation.Resource;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class LoginController {
 
-    @Resource
+    @Autowired
     ChromeDriver chromeDriver;
-    @Resource
-    WebDriver.Options manage;
+
 
     /**
      * cookie数据的处理
@@ -42,9 +42,9 @@ public class LoginController {
         return cookieString;
     }
 
-    @GetMapping({"/login/qq/{name}"})
+    @RequestMapping(value = "/login/qq/{urlkey}", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject commonLogin(@RequestBody(required = false) JSONObject jsonObject,
-                                  @PathVariable(value = "name") String name,
+                                  @PathVariable(value = "urlkey") String urlkey,
                                   @RequestParam(value = "username", required = false) String username,
                                   @RequestParam(value = "password") String password,
                                   @RequestParam(value = "format", required = false, defaultValue = "1") String format) {
@@ -67,7 +67,8 @@ public class LoginController {
             }
             return error;
         }
-        return LoginAndGetCookie(username, password, name, format);
+        System.out.println("进入了/login/qq/" + urlkey + "   ====> commonLogin");
+        return LoginAndGetCookie(username, password, urlkey, format);
     }
 
     /**
@@ -81,15 +82,17 @@ public class LoginController {
      */
     public JSONObject LoginAndGetCookie(String username, String password, String name, String format) {
         final JSONObject cookieJson = new JSONObject();
+        WebDriver.Options manage = chromeDriver.manage();
         try {
             // 登录前先清除cookie
             final String url = WebLoginEnum.getUrl(name);
             if (!StringUtils.hasText(url)) {
-                cookieJson.put("msg", "网站没有引入项目，请使用另外一个接口进行登录");
+                cookieJson.put("msg", "请使用另外一个接口进行登录");
                 return cookieJson;
             }
-            manage.deleteAllCookies();// 清除cookie
+            System.out.println("准备访问");
             chromeDriver.get(url);// 访问登录页面
+            System.out.println("进行访问 => " + url);
             final WebDriver ptlogin_iframe = chromeDriver.switchTo().frame("ptlogin_iframe");
             ptlogin_iframe.findElement(By.id("switcher_plogin")).click();
             final WebElement u = ptlogin_iframe.findElement(By.className("inputstyle"));
@@ -98,13 +101,32 @@ public class LoginController {
             final WebElement p = ptlogin_iframe.findElement(By.id("p"));
             p.clear();// 清空输入的密码数据
             p.sendKeys(password + "\n");// 输入密码，回车就提交了下面的这个点击登录不需要
-            final String beforeUrl = chromeDriver.getCurrentUrl();
-            while (chromeDriver.getCurrentUrl().equals(beforeUrl)) {
-                // 页面没有跳转就让他等待，等待自己重定向到登录后的页面，然后再获取cookie时就是正确的cookie
+            System.out.println("判断页面跳转前");
+            final String title = chromeDriver.getTitle();// 得到标题
+            System.out.println("当前标题 ==> " + title);
+            // 如果标题没有换则说明页面没有切换
+            int times = 0;
+            while (chromeDriver.getTitle().equals(title)) {
+                //如果标题相等就让他自旋，不相等说明跳转了页面
+                try {
+                    times++;
+                    if (times > 100) {
+                        break;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-
-            System.out.println("=======等待登录成功后跳转到页面<<<<<<<<<<<");
-            chromeDriver.navigate().refresh();// 刷新页面获取cookie，不然会导致cookie数据有问题
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            //chromeDriver.navigate().refresh();// 刷新页面
+            manage = chromeDriver.manage();// 重新获取manage，之前的那个manage已经失效了
+            System.out.println("标题变化后 ==> " + chromeDriver.getTitle());// 获取到了标题说明页面跳转成功了
+            System.out.println("页面进行了跳转或者超时，限定了5秒内，否则结束循环");
             //获得cookie
             Set<Cookie> coo = manage.getCookies();// 得到所有cookie
             //打印cookie
@@ -116,7 +138,7 @@ public class LoginController {
             } else {
                 cookieJson.put("cookie", coo);
             }
-            manage.deleteAllCookies();// 每次登录完就清除cookie
+//            manage.deleteAllCookies();// 每次登录完就清除cookie
         } catch (Exception e) {
             System.out.println("抛异常了");
             e.printStackTrace();
@@ -126,8 +148,8 @@ public class LoginController {
 
 
     /**
-     * @param jsonObject 可选，目的是兼容json数据，可能客户端两种都传
-     * @param url        可选，目的是兼容json数据，可能客户端两种都传
+     * @param jsonObject 可选，目的是兼容json数据，可能客户端两种都传，如果json数据完整则使用json的，下面的参数就会失效
+     * @param url        必选
      * @param username   qq账号
      * @param password   qq密码
      * @param format     默认1返回的cookie为json，传入的不是1则返回精简版的cookie
@@ -166,7 +188,7 @@ public class LoginController {
             }
             return error;
         }
-
+        System.out.println("进入了/login/qq  ==> loginQQBackCookie");
         return LoginAndGetCookie(username, password, url, format);
     }
 

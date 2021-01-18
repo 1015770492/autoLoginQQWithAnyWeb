@@ -126,19 +126,19 @@ java -jar -Dwebdriver.chrome.driver=/root/chromedriver \
 ### 第四步发送请求得到cookie信息
 `get/post`都支持，接收`json`/`传参数`
 如下
-接口地址：`http://yumbo.top:7000/login/{name}`
-qq音乐在线地址：`http://yumbo.top:7000/login/music`
-网易云音乐在线地址：`http://yumbo.top:7000/login/netease`
-csdn在线地址：`http://yumbo.top:7000/login/csdn`
+接口地址：`http://yumbo.top:7000/login/qq/{name}`
+qq音乐在线地址：`http://yumbo.top:7000/login/qq/music`
+网易云音乐在线地址：`http://yumbo.top:7000/login/qq/netease`
+csdn在线地址：`http://yumbo.top:7000/login/qq/csdn`
 
 下面是qq音乐的登录地址（qq音乐它不会跳转到后面的那个界面，需要通过抓包分析）
 替换下面的username和password即可完成登录获取登录qq音乐后的cookie
 方便复制：下面的这个模板只适合qq音乐，其它网站则根据后面参数补充的那个页面直接复制url代替这里参数的url即可
 ```
-http://yumbo.top:7000/login/music?username=qq号&password=qq密码&format=2
+http://yumbo.top:7000/login/qq/music?username=qq号&password=qq密码&format=2
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210117013935192.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQxODEzMjA4,size_16,color_FFFFFF,t_70)
+
 #### 参数补充说明
 url 是登录qq的那个页面，复制登录界面的url 传入即可
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210117014505688.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQxODEzMjA4,size_16,color_FFFFFF,t_70)
