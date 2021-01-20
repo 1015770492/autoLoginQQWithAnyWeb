@@ -1,2 +1,6 @@
 server:
   port: 7000
+#  ssl:
+#    key-store: classpath:yumbo.top.jks
+#    key-store-password: F57QU62T
+#    key-store-type: JKS

@@ -18,7 +18,7 @@ public class ChromeAutoConfigration {
 //         System.setProperty("webdriver.chrome.driver", "D:/Program Files (x86)/chromedriver/chromedriver.exe");
         System.setProperty("webdriver.chrome.whitelistedIps", "");
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); //无浏览器模式
+//        options.addArguments("--headless"); //无浏览器模式
         options.addArguments("--no-sandbox");// 为了让root用户也能执行
 
 
@@ -26,9 +26,9 @@ public class ChromeAutoConfigration {
 //        options.addArguments("--disable-dev-shm-usage");
 //        options.addArguments("--verbose");
 //        options.addArguments("blink-settings=imagesEnabled=false");
-        options.addArguments("--disable-gpu");
+//        options.addArguments("--disable-gpu");
         ChromeDriver chromeDriver = new ChromeDriver(options);//实例化
-        chromeDriver.manage().timeouts().setScriptTimeout(5, TimeUnit.SECONDS);
+        chromeDriver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
         return chromeDriver;
     }
 

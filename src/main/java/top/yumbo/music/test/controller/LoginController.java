@@ -1,11 +1,9 @@
 package top.yumbo.music.test.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +11,7 @@ import top.yumbo.music.test.web.WebLoginEnum;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 @RestController
 public class LoginController {
@@ -106,11 +105,33 @@ public class LoginController {
             System.out.println("当前标题 ==> " + title);
             // 如果标题没有换则说明页面没有切换
             int times = 0;
-            while (chromeDriver.getTitle().equals(title)) {
+            while (chromeDriver.getTitle().equals(title) || !StringUtils.hasText(chromeDriver.getTitle())) {
                 //如果标题相等就让他自旋，不相等说明跳转了页面
                 try {
                     times++;
-                    if (times > 100) {
+                    if (times > 20) {
+                        System.out.println("===============>>");
+                        chromeDriver.findElementById("login_button").click();
+
+                        chromeDriver.switchTo().defaultContent();
+                        chromeDriver.switchTo().frame("ptlogin_iframe");
+                        try {
+                            TimeUnit.SECONDS.sleep(2);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        final WebDriver tcaptcha_iframe = chromeDriver.switchTo().frame("tcaptcha_iframe");
+                        System.out.println("111");
+
+                        Actions actions = new Actions(tcaptcha_iframe);
+                        final WebElement tcaptcha_drag_button = tcaptcha_iframe.findElement(By.id("tcaptcha_drag_thumb"));
+                        actions.clickAndHold(tcaptcha_drag_button);
+                        final Point location = tcaptcha_drag_button.getLocation();// 获取拖拽验证码的位置
+                        IntStream.range(1, 170).forEach(x -> {
+                            actions.moveToElement(tcaptcha_drag_button, 1, 0).perform();
+                        });
+                        actions.release(tcaptcha_drag_button).perform();
+
                         break;
                     }
                     TimeUnit.MILLISECONDS.sleep(100);
@@ -118,12 +139,9 @@ public class LoginController {
                     e.printStackTrace();
                 }
             }
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            //chromeDriver.navigate().refresh();// 刷新页面
+
+
+//            chromeDriver.navigate().refresh();// 刷新页面
             manage = chromeDriver.manage();// 重新获取manage，之前的那个manage已经失效了
             System.out.println("标题变化后 ==> " + chromeDriver.getTitle());// 获取到了标题说明页面跳转成功了
             System.out.println("页面进行了跳转或者超时，限定了5秒内，否则结束循环");
